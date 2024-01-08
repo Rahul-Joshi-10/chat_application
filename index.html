@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Chatbot</title>
+  
+</head>
+<body>
+  <video id="video-background" autoplay muted loop>
+    <source src="main.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+    <div id="chat-container">
+        <div id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Type here..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+
+    <script>
+        var questions = [
+            "Hello, we are team cognifront could you please let me know your good name?",
+            "What is your email?",
+            "What is your phone number?"
+        ];
+
+        var currentQuestionIndex = 0;
+        var userResponses = [];
+        askQuestion();
+
+        function sendMessage() {
+            var userInput = document.getElementById("user-input").value;
+
+            // Display user message
+            appendMessage("You: " + userInput);
+
+            // Save user response to the current question
+            saveResponse(userInput);
+
+            // Move to the next question or finish the conversation
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                askQuestion();
+            } else {
+                // All questions answered, send data to the server
+                sendToServer();
+            }
+
+            // Clear input field
+            document.getElementById("user-input").value = "";
+        }
+
+        function askQuestion() {
+            // Display the next question
+            appendMessage("Bot: " + questions[currentQuestionIndex]);
+        }
+
+        function appendMessage(message) {
+            var chatBox = document.getElementById("chat-box");
+            var newMessage = document.createElement("div");
+            newMessage.textContent = message;
+            chatBox.appendChild(newMessage);
+        }
+
+        function saveResponse(response) {
+            // Save user response to an array or object for later use
+            userResponses[currentQuestionIndex] = response;
+        }
+
+        function sendToServer() {
+            // Send user responses to the server using AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "process.php", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Display server response
+                    appendMessage("Bot: " + xhr.responseText);
+                }
+            };
+            xhr.send("name=" + userResponses[0] + "&email=" + userResponses[1] + "&phone=" + userResponses[2]);
+        }
+    </script>
+</body>
+</html>
